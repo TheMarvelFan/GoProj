@@ -68,6 +68,9 @@ func main() {
 		v1Router.GET("/healthCheck", healthCheckRouteHandler)
 		v1Router.GET("/error", errorRouteHandler)
 		v1Router.POST("/users", apiCfg.createUserHandler)
+		v1Router.GET("/users", apiCfg.authMiddlewareFunc(apiCfg.getUserHandler))
+		v1Router.POST("/feeds", apiCfg.authMiddlewareFunc(apiCfg.createFeedHandler))
+		v1Router.GET("/feeds", apiCfg.getFeedsHandler)
 	}
 
 	router.Use(cors.New(config))

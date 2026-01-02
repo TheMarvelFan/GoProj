@@ -35,5 +35,9 @@ func (apiCfg *apiConfig) createUserHandler(c *gin.Context) {
 		return
 	}
 
+	sendJsonResponse(c, 201, dbUserToUser(user))
+}
+
+func (apiCfg *apiConfig) getUserHandler(c *gin.Context, user database.User) {
 	sendJsonResponse(c, 200, dbUserToUser(user))
 }
