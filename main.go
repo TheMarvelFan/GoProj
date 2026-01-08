@@ -71,6 +71,10 @@ func main() {
 		v1Router.GET("/users", apiCfg.authMiddlewareFunc(apiCfg.getUserHandler))
 		v1Router.POST("/feeds", apiCfg.authMiddlewareFunc(apiCfg.createFeedHandler))
 		v1Router.GET("/feeds", apiCfg.getFeedsHandler)
+		v1Router.POST("/feedFollowers", apiCfg.authMiddlewareFunc(apiCfg.createFeedFollowersHandler))
+		v1Router.GET("/feedFollowers/feedsFollowed", apiCfg.authMiddlewareFunc(apiCfg.getFeedsFollowedByUserHandler))
+		v1Router.GET("/feedFollowers/followers", apiCfg.authMiddlewareFunc(apiCfg.getFollowersForFeedHandler))
+		v1Router.DELETE("/feedFollowers/:feedId", apiCfg.authMiddlewareFunc(apiCfg.deleteFeedFollowingHandler))
 	}
 
 	router.Use(cors.New(config))
