@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -20,8 +19,6 @@ type apiConfig struct {
 }
 
 func main() {
-	fmt.Println("Hello world")
-
 	godotenv.Load(".env") // load .env file
 
 	port := os.Getenv("PORT") // to get values from current OS session
@@ -42,9 +39,17 @@ func main() {
 		log.Fatal("Cannot connect to db:", errConn)
 	}
 
+	dbConn := database.New(conn)
+
 	apiCfg := apiConfig{
-		DB: database.New(conn),
+		DB: dbConn,
 	}
+
+	startScraping(
+		dbConn,
+		10,
+		time.Minute,
+	)
 
 	config := cors.Config{
 		AllowOrigins:           []string{"https://*", "http://*"},
