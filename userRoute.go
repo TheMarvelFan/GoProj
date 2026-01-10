@@ -41,3 +41,17 @@ func (apiCfg *apiConfig) createUserHandler(c *gin.Context) {
 func (apiCfg *apiConfig) getUserHandler(c *gin.Context, user database.User) {
 	sendJsonResponse(c, 200, dbUserToUser(user))
 }
+
+func (apiCfg *apiConfig) getPostsForUserHandler(c *gin.Context, user database.User) {
+	posts, err := apiCfg.DB.GetPostsForUser(c, database.GetPostsForUserParams{
+		UserID: user.ID,
+		Limit:  10,
+	})
+
+	if err != nil {
+		sendErrorResponse(c, 400, fmt.Sprintf("Error fetching posts for user: %v", err))
+		return
+	}
+
+	sendJsonResponse(c, 200, dbPostsToPosts(posts))
+}

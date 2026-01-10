@@ -2,11 +2,14 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"log"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/TheMarvelFan/GoPractice/internal/database"
+	"github.com/google/uuid"
 )
 
 func startScraping(
@@ -57,7 +60,41 @@ func scrapeFeed(
 	}
 
 	for _, item := range rssFeed.Channel.Item {
-		log.Println("New post found:", item.Title, "in feed:", feed.Name)
+		nullableDescription := sql.NullString{}
+
+		if item.Description != "" {
+			nullableDescription.String = item.Description
+			nullableDescription.Valid = true
+		}
+
+		publishedAt, timeConvError := time.Parse(time.RFC1123Z, item.PubDate)
+
+		if timeConvError != nil {
+			log.Printf("Cannot parse published date/time %v , error: %v", item.PubDate, timeConvError)
+			continue
+		}
+
+		_, createPostErr := db.CreatePost(
+			context.Background(),
+			database.CreatePostParams{
+				ID:          uuid.New(),
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+				PublishedAt: publishedAt,
+				Title:       item.Title,
+				Description: nullableDescription,
+				Url:         item.Link,
+				FeedID:      feed.ID,
+			},
+		)
+
+		if createPostErr != nil {
+			if strings.Contains(createPostErr.Error(), "duplicate key") { // this is where we should ideally set log levels
+				continue
+			}
+
+			log.Println("Error creating post:", createPostErr)
+		}
 	}
 
 	log.Printf("Feed %s was fetch. Found %v new posts.\n", feed.Name, len(rssFeed.Channel.Item))

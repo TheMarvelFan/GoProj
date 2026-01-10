@@ -45,7 +45,7 @@ func main() {
 		DB: dbConn,
 	}
 
-	startScraping(
+	go startScraping(
 		dbConn,
 		10,
 		time.Minute,
@@ -74,6 +74,7 @@ func main() {
 		v1Router.GET("/error", errorRouteHandler)
 		v1Router.POST("/users", apiCfg.createUserHandler)
 		v1Router.GET("/users", apiCfg.authMiddlewareFunc(apiCfg.getUserHandler))
+		v1Router.GET("/users/posts", apiCfg.authMiddlewareFunc(apiCfg.getPostsForUserHandler))
 		v1Router.POST("/feeds", apiCfg.authMiddlewareFunc(apiCfg.createFeedHandler))
 		v1Router.GET("/feeds", apiCfg.getFeedsHandler)
 		v1Router.POST("/feedFollowers", apiCfg.authMiddlewareFunc(apiCfg.createFeedFollowersHandler))
